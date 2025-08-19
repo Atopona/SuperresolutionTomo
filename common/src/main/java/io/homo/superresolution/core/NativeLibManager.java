@@ -86,11 +86,31 @@ public class NativeLibManager {
     }
 
     public static void load(String path) {
+        // 在 Windows 上，优先按常规名称预加载别名，以满足依赖的按名解析（如 SPIRV-Tools-shared.dll）
+        OS os = new OS();
+        if (os.type == OSType.WINDOWS) {
+            String alias = USE_DEBUG_LIB ? "SPIRV-Tools-sharedd.dll" : "SPIRV-Tools-shared.dll";
+            File aliasFile = Path.of(path, alias).toFile();
+            if (aliasFile.exists()) {
+                try {
+                    LOGGER.info("预加载依赖库别名： {}", aliasFile.getAbsolutePath());
+                    System.load(aliasFile.getAbsolutePath());
+                } catch (UnsatisfiedLinkError e) {
+                    LOGGER.warn("预加载别名失败： {}", e.toString());
+                }
+            }
+        }
+
         for (NativeLib lib : libs) {
             File f = lib.getTargetPath(Path.of(path)).toFile();
             if (lib.loadAtStartup) {
-                LOGGER.info("加载依赖库： {}", f.getAbsolutePath());
-                System.load(f.getAbsolutePath());
+                try {
+                    LOGGER.info("加载依赖库： {}", f.getAbsolutePath());
+                    System.load(f.getAbsolutePath());
+                } catch (UnsatisfiedLinkError e) {
+                    LOGGER.error("加载 {} 失败： {}", f.getName(), e.toString());
+                    throw e;
+                }
             }
         }
         nativeApiAvailable = true;

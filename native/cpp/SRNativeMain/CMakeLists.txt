@@ -38,7 +38,7 @@ if(WIN32)
             SPIRV-Tools-lintd
             SPIRV-Tools-optd
             SPIRV-Tools-reduced
-            SPIRV-Tools-sharedd
+            SPVRemapperd
         )
     else()
         target_link_libraries(SR_MAIN_LIB
@@ -54,7 +54,7 @@ if(WIN32)
             SPIRV-Tools-lint
             SPIRV-Tools-opt
             SPIRV-Tools-reduce
-            SPIRV-Tools-shared
+            SPVRemapper
         )
     endif()
 
