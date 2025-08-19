@@ -95,6 +95,25 @@ public class ClothConfig {
                 .setSaveConsumer((i) -> SuperResolutionConfig.setSharpness(getFloat(i)))
                 .build());
 
+        // NIS options
+        commonCategory.addEntry(entryBuilder.startBooleanToggle(
+                        Component.translatable("superresolution.screen.config.options.label.nis_sharpen_only"),
+                        SuperResolutionConfig.NIS_SHARPEN_ONLY.get())
+                .setTooltip(Component.translatable("superresolution.screen.config.options.tooltip.nis_sharpen_only"))
+                .setSaveConsumer(v -> SuperResolutionConfig.NIS_SHARPEN_ONLY.set(v))
+                .build());
+        commonCategory.addEntry(entryBuilder.startIntSlider(
+                        Component.translatable("superresolution.screen.config.options.label.nis_contrast_boost"),
+                        getInt(SuperResolutionConfig.NIS_CONTRAST_BOOST.get()),
+                        getInt(0.5f),
+                        getInt(2.0f)
+                )
+                .setTooltip(Component.translatable("superresolution.screen.config.options.tooltip.nis_contrast_boost"))
+                .setDefaultValue(getInt(1.0f))
+                .setTextGetter((integer -> Component.literal(String.format("%.2f", getFloat(integer)))))
+                .setSaveConsumer((i) -> SuperResolutionConfig.NIS_CONTRAST_BOOST.set(getFloat(i)))
+                .build());
+
         SelectionListEntry<Object> algorithmSelector = entryBuilder.startSelector(
                         Component.translatable("superresolution.screen.config.options.label.algo_type"),
                         AlgorithmRegistry.getAlgorithmMap().values().toArray(),
@@ -119,7 +138,7 @@ public class ClothConfig {
                 entryBuilder.startTextDescription(
                                 Component.translatable("superresolution.screen.config.warn.algorithm_unstable")
                         ).setColor(ColorUtil.color(255, 255, 128, 0))
-                        .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.FSR2 /*AlgorithmDescriptions.NIS*/, AlgorithmDescriptions.SGSR2))
+                        .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.FSR2, AlgorithmDescriptions.NIS, AlgorithmDescriptions.SGSR2))
                         .build()
         );
         commonCategory.addEntry(

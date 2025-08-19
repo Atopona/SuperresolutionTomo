@@ -131,5 +131,11 @@
     "superresolution.screen.config.options.tooltip.disable_upscale_on_vanilla": "Automatically disable Super Resolution when shaders are turned off",
     "superresolution.screen.config.options.label.force_disable_shader_compat": "Force Disable Shader Pack Compatibility",
     "superresolution.screen.config.options.tooltip.force_disable_shader_compat": "When enabled, the mod will ignore the shader pack’s Super Resolution compatibility config and perform scaling in normal mode",
+
+    "superresolution.screen.config.options.label.nis_sharpen_only": "NIS: Sharpen Only",
+    "superresolution.screen.config.options.tooltip.nis_sharpen_only": "Process at display resolution (no upscaling), applying only NIS sharpening",
+    "superresolution.screen.config.options.label.nis_contrast_boost": "NIS: Contrast Boost",
+    "superresolution.screen.config.options.tooltip.nis_contrast_boost": "Contrast boost multiplier for edge-adaptive sharpening (range 0.5–2.0)",
+
     "superresolution.translate.PoweredByDeepSeek": "?"
 }
