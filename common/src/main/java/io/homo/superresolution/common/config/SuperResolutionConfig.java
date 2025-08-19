@@ -49,6 +49,11 @@ public class SuperResolutionConfig {
     public static final BooleanValue ENABLE_DEBUG;
     public static final BooleanValue DISABLE_UPSCALE_ON_VANILLA;
     public static final BooleanValue FORCE_DISABLE_SHADER_COMPAT;
+
+    // NIS specific options
+    public static final BooleanValue NIS_SHARPEN_ONLY;
+    public static final FloatValue NIS_CONTRAST_BOOST;
+
     public static final OSType CURRENT_OS_TYPE = new OS().type;
     public static final Runnable resolutionChangeCallback;
 
@@ -186,6 +191,21 @@ public class SuperResolutionConfig {
                 () -> false,
                 "Disable Super Resolution when using vanilla rendering."
         );
+
+        // NIS specific options
+        NIS_SHARPEN_ONLY = builder.defineBoolean(
+                "nis/sharpen_only",
+                () -> false,
+                "Use NIS in sharpen-only mode (no upscaling)."
+        );
+        NIS_CONTRAST_BOOST = builder.defineFloat(
+                "nis/contrast_boost",
+                () -> 1.0f,
+                "Contrast boost multiplier for NIS edge adaptive sharpening (0.5 ~ 2.0)",
+                v -> v >= 0.5f && v <= 2.0f
+        );
+
+
 
         SPECIAL = new SpecialConfigs(builder);
         Path configPath = Platform.currentPlatform

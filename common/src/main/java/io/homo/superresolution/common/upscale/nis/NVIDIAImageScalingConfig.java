@@ -95,7 +95,7 @@ public class NVIDIAImageScalingConfig implements IUniformStruct {
         config.kDetectThres = kDetectThres;
         config.kMinContrastRatio = kMinContrastRatio;
         config.kRatioNorm = kRatioNorm;
-        config.kContrastBoost = 1.0f;
+        config.kContrastBoost = io.homo.superresolution.common.config.SuperResolutionConfig.NIS_CONTRAST_BOOST.get();
         config.kEps = 1.0f / 255.0f;
         config.kSharpStartY = kSharpStartY;
         config.kSharpScaleY = kSharpScaleY;

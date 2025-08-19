@@ -374,7 +374,7 @@ void NVScaler(uvec2 blockIdx, uint threadIdx)
             {
                 for (int k = 0; k < 2; k++)
                 {
-                    const vec4 px = texture(in_texture, vec2(tx + k * kSrcNormX, ty + j * kSrcNormY));
+                    const vec4 px = textureLod(in_texture, vec2(tx + k * kSrcNormX, ty + j * kSrcNormY), 0.0);
                     p[j][k] = getY(px.xyz);
                 }
             }
@@ -478,15 +478,13 @@ void NVScaler(uvec2 blockIdx, uint threadIdx)
             vec2 coord = vec2((srcX + 0.5f) * kSrcNormX, (srcY + 0.5f) * kSrcNormY);
             vec2 dstCoord = vec2(dstX, dstY);
 
-            vec4 op = texture(in_texture, coord);
+            vec4 op = textureLod(in_texture, coord, 0.0);
             float y = getY(vec3(op.x, op.y, op.z));
 
             const float corr = opY * (1.0f / float(1.f)) - y;
-            op.x += corr;
-            op.y += corr;
-            op.z += corr;
+            op.rgb += vec3(corr);
 
-            imageStore(out_texture, ivec2(dstCoord), (op));
+            imageStore(out_texture, ivec2(dstCoord), op);
         }
     }
 }

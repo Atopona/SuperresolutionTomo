@@ -18,7 +18,6 @@ import io.homo.superresolution.core.graphics.impl.shader.uniform.ShaderUniformAc
 import io.homo.superresolution.core.graphics.impl.texture.*;
 import io.homo.superresolution.core.graphics.opengl.framebuffer.GlFrameBuffer;
 import io.homo.superresolution.core.math.Vector3i;
-import org.lwjgl.opengl.GL43;
 import org.lwjgl.stb.STBImage;
 
 import java.io.IOException;
@@ -114,25 +113,36 @@ public class NVIDIAImageScaling extends AbstractAlgorithm {
         );
     }
 
-    private ITexture createCoefTexture(String resourcePath, int width, int height) {
-        ITexture tex = RenderSystems.current().device().createTexture(
-                TextureDescription.create()
-                        .type(TextureType.Texture2D)
-                        .width(width)
-                        .height(height)
-                        .format(TextureFormat.RGBA8)
-                        .usages(TextureUsages.create().sampler().storage())
-                        .label("NIS_Coef_" + (resourcePath.contains("usm") ? "USM" : "Scaler"))
-                        .build()
-        );
+    private ITexture createCoefTexture(String resourcePath, int expectedWidth, int expectedHeight) {
         ByteBuffer pngBytes;
         try (InputStream is = NVIDIAImageScaling.class.getResourceAsStream(resourcePath)) {
-            if (is == null) return tex;
+            if (is == null) {
+                // Fallback: create an empty texture with expected size
+                return RenderSystems.current().device().createTexture(
+                        TextureDescription.create()
+                                .type(TextureType.Texture2D)
+                                .width(expectedWidth)
+                                .height(expectedHeight)
+                                .format(TextureFormat.RGBA8)
+                                .usages(TextureUsages.create().sampler().storage())
+                                .label("NIS_Coef_" + (resourcePath.contains("usm") ? "USM" : "Scaler"))
+                                .build()
+                );
+            }
             byte[] bytes = is.readAllBytes();
             pngBytes = ByteBuffer.allocateDirect(bytes.length);
             pngBytes.put(bytes).flip();
         } catch (IOException e) {
-            return tex;
+            return RenderSystems.current().device().createTexture(
+                    TextureDescription.create()
+                            .type(TextureType.Texture2D)
+                            .width(expectedWidth)
+                            .height(expectedHeight)
+                            .format(TextureFormat.RGBA8)
+                            .usages(TextureUsages.create().sampler().storage())
+                            .label("NIS_Coef_" + (resourcePath.contains("usm") ? "USM" : "Scaler"))
+                            .build()
+            );
         }
         try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -140,12 +150,28 @@ public class NVIDIAImageScaling extends AbstractAlgorithm {
             IntBuffer ch = stack.mallocInt(1);
             STBImage.stbi_set_flip_vertically_on_load(false);
             ByteBuffer pixels = STBImage.stbi_load_from_memory(pngBytes, w, h, ch, 4);
+            int texW = expectedWidth;
+            int texH = expectedHeight;
             if (pixels != null) {
-                ((io.homo.superresolution.core.graphics.opengl.texture.GlTexture2D) tex).uploadData(0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels, 1);
+                texW = w.get(0);
+                texH = h.get(0);
+            }
+            ITexture tex = RenderSystems.current().device().createTexture(
+                    TextureDescription.create()
+                            .type(TextureType.Texture2D)
+                            .width(texW)
+                            .height(texH)
+                            .format(TextureFormat.RGBA8)
+                            .usages(TextureUsages.create().sampler().storage())
+                            .label("NIS_Coef_" + (resourcePath.contains("usm") ? "USM" : "Scaler"))
+                            .build()
+            );
+            if (pixels != null) {
+                ((io.homo.superresolution.core.graphics.opengl.texture.GlTexture2D) tex).uploadData(0, 0, 0, texW, texH, GL_RGBA, GL_UNSIGNED_BYTE, pixels, 1);
                 STBImage.stbi_image_free(pixels);
             }
+            return tex;
         }
-        return tex;
     }
 
     private Vector3i getWorkGroupSize() {
@@ -161,11 +187,15 @@ public class NVIDIAImageScaling extends AbstractAlgorithm {
         super.dispatch(dispatchResource);
 
         // Prepare config
+        boolean sharpenOnly = SuperResolutionConfig.NIS_SHARPEN_ONLY.get();
+        int inW = sharpenOnly ? dispatchResource.screenWidth() : dispatchResource.renderWidth();
+        int inH = sharpenOnly ? dispatchResource.screenHeight() : dispatchResource.renderHeight();
+
         config.NVScalerUpdateConfig(
                 SuperResolutionConfig.getSharpness(),
                 0, 0,
-                dispatchResource.renderWidth(), dispatchResource.renderHeight(),
-                dispatchResource.renderWidth(), dispatchResource.renderHeight(),
+                inW, inH,
+                inW, inH,
                 0, 0,
                 dispatchResource.screenWidth(), dispatchResource.screenHeight(),
                 dispatchResource.screenWidth(), dispatchResource.screenHeight(),
