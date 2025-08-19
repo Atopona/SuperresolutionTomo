@@ -12,6 +12,7 @@ import io.homo.superresolution.common.upscale.nis.NVIDIAImageScaling;
 import io.homo.superresolution.common.upscale.none.None;
 import io.homo.superresolution.common.upscale.sgsr.v1.Sgsr1;
 import io.homo.superresolution.common.upscale.sgsr.v2.Sgsr2;
+import io.homo.superresolution.common.upscale.dlss.SimpleDLSS;
 import io.homo.superresolution.common.platform.OS;
 import io.homo.superresolution.common.platform.Arch;
 import io.homo.superresolution.common.platform.OSType;
@@ -107,6 +108,20 @@ public class AlgorithmDescriptions {
                             .isFalse(Gl::isLegacy)
                             .isTrue(Gl::isSupportDSA)
             );
+    public static final AlgorithmDescription<SimpleDLSS> DLSS =
+            new AlgorithmDescription<>(
+                    SimpleDLSS.class,
+                    "DLSS",
+                    "dlss",
+                    "NVIDIA Deep Learning Super Sampling",
+                    Requirement.nothing()
+                            .addSupportedOS(new OS(Arch.X86_64, OSType.WINDOWS))
+                            .addSupportedOS(new OS(Arch.X86_64, OSType.LINUX))
+                            .glMajorVersion(4)
+                            .glMinorVersion(3)
+                            .isFalse(Gl::isLegacy)
+                            .isTrue(Gl::isSupportDSA)
+            );
 
     public static void registryAlgorithms() {
         AlgorithmRegistry.registry(NONE);
@@ -117,6 +132,7 @@ public class AlgorithmDescriptions {
         AlgorithmRegistry.registry(NIS);
         AlgorithmRegistry.registry(SGSR1);
         AlgorithmRegistry.registry(SGSR2);
+        AlgorithmRegistry.registry(DLSS);
         AlgorithmRegisterEvent.EVENT.invoker().onAlgorithmRegister();
     }
 }
