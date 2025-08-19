@@ -4,7 +4,7 @@ import io.homo.superresolution.core.graphics.impl.IUniformStruct;
 import io.homo.superresolution.common.upscale.DispatchResource;
 import io.homo.superresolution.common.upscale.nis.enums.NISHDRMode;
 import io.homo.superresolution.common.upscale.nis.struct.NISConfig;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,7 +14,9 @@ public class NVIDIAImageScalingConfig implements IUniformStruct {
     public ByteBuffer container;
 
     public NVIDIAImageScalingConfig() {
-        container = MemoryStack.stackCalloc(NISConfig.SIZE);
+        // Allocate a persistent native buffer. Do NOT use MemoryStack here because
+        // the buffer must live across frames.
+        container = MemoryUtil.memCalloc(NISConfig.SIZE);
     }
 
     public boolean NVScalerUpdateConfig(float sharpness,

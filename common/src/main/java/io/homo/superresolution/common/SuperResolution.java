@@ -13,11 +13,7 @@ import io.homo.superresolution.common.gui.ConfigScreenBuilder;
 import io.homo.superresolution.common.minecraft.MinecraftWindow;
 import io.homo.superresolution.core.RenderSystems;
 import io.homo.superresolution.core.graphics.GpuVendor;
-import io.homo.superresolution.core.graphics.opengl.OptimizedGlState;
-import io.homo.superresolution.core.graphics.shader.ShaderCache;
-import io.homo.superresolution.core.resources.AsyncResourceLoader;
-import io.homo.superresolution.core.performance.PerformanceMonitor;
-import io.homo.superresolution.common.upscale.OptimizedAlgorithmManager;
+import io.homo.superresolution.core.graphics.opengl.GlState;
 import io.homo.superresolution.core.graphics.glslang.GlslangShaderCompiler;
 import io.homo.superresolution.core.impl.Destroyable;
 import io.homo.superresolution.core.impl.Resizable;
@@ -152,20 +148,8 @@ public final class SuperResolution implements Resizable, Destroyable {
 
     public static void initRendering() {
         renderThread = Thread.currentThread();
-        try (OptimizedGlState ignored = OptimizedGlState.forSuperResolution()) {
+        try (GlState ignored = new GlState()) {
             RenderSystems.init();
-            
-            // 初始化性能优化组件
-            if (SuperResolutionConfig.isEnableShaderCache()) {
-                ShaderCache.init(Platform.currentPlatform.getGameFolder());
-                ShaderCache.warmupShaders();
-            }
-            
-            // 初始化异步资源加载器
-            AsyncResourceLoader.cleanup(); // 清理之前的实例
-            
-            // 初始化优化的算法管理器
-            OptimizedAlgorithmManager.init();
 
             if (minecraft == null) minecraft = Minecraft.getInstance();
             if (!isPreInit) return;
@@ -187,7 +171,7 @@ public final class SuperResolution implements Resizable, Destroyable {
     }
 
     public static boolean createAlgorithm() {
-        try (OptimizedGlState ignored = OptimizedGlState.forSuperResolution()) {
+        try (GlState ignored = new GlState()) {
             if (minecraft == null) minecraft = Minecraft.getInstance();
             if (!isPreInit) return false;
             defaultAlgorithm.init();
@@ -205,7 +189,7 @@ public final class SuperResolution implements Resizable, Destroyable {
     }
 
     public static boolean recreateAlgorithm() {
-        try (OptimizedGlState ignored = OptimizedGlState.forSuperResolution()) {
+        try (GlState ignored = new GlState()) {
             if (minecraft == null) minecraft = Minecraft.getInstance();
             if (!isPreInit) {
                 return false;
@@ -289,13 +273,6 @@ public final class SuperResolution implements Resizable, Destroyable {
     }
 
     public void destroy() {
-        // 清理优化组件
-        OptimizedAlgorithmManager.destroy();
-        AsyncResourceLoader.cleanup();
-        if (SuperResolutionConfig.isEnableShaderCache()) {
-            ShaderCache.shutdown();
-        }
-        
         RenderSystems.destroy();
         if (currentAlgorithm != null)
             currentAlgorithm.destroy();

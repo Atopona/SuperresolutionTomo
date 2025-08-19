@@ -48,16 +48,7 @@ public class SuperResolutionConfig {
     public static final BooleanValue ENABLE_DETAILED_PROFILING;
     public static final BooleanValue ENABLE_DEBUG;
     public static final BooleanValue DISABLE_UPSCALE_ON_VANILLA;
-    public static final BooleanValue ENABLE_PERFORMANCE_MONITORING;
-    public static final BooleanValue ENABLE_SHADER_CACHE;
-    public static final BooleanValue ENABLE_BATCH_RENDERING;
     public static final BooleanValue FORCE_DISABLE_SHADER_COMPAT;
-    
-    // DLSS配置选项
-    public static final StringValue DLSS_QUALITY;
-    public static final BooleanValue DLSS_ENABLE_HDR;
-    public static final BooleanValue DLSS_ENABLE_AUTO_EXPOSURE;
-    public static final BooleanValue DLSS_SHOW_METRICS;
     public static final OSType CURRENT_OS_TYPE = new OS().type;
     public static final Runnable resolutionChangeCallback;
 
@@ -194,58 +185,6 @@ public class SuperResolutionConfig {
                 "disable_upscale_on_vanilla",
                 () -> false,
                 "Disable Super Resolution when using vanilla rendering."
-        );
-
-        ENABLE_PERFORMANCE_MONITORING = builder.defineBoolean(
-                "performance/enable_performance_monitoring",
-                () -> false,
-                "Enable detailed performance monitoring and statistics collection."
-        );
-
-        ENABLE_SHADER_CACHE = builder.defineBoolean(
-                "performance/enable_shader_cache",
-                () -> true,
-                "Enable shader compilation caching to improve startup performance."
-        );
-
-        ENABLE_BATCH_RENDERING = builder.defineBoolean(
-                "performance/enable_batch_rendering",
-                () -> true,
-                "Enable batch rendering optimizations to reduce draw calls."
-        );
-
-        // DLSS配置
-        DLSS_QUALITY = builder.defineString(
-                "dlss/quality",
-                () -> "balanced",
-                "DLSS quality preset (performance, balanced, quality, ultra_quality, ultra_performance)",
-                value -> {
-                    if (value == null) return false;
-                    try {
-                        io.homo.superresolution.common.upscale.dlss.enums.DLSSQuality.fromString(value);
-                        return true;
-                    } catch (Exception e) {
-                        return false;
-                    }
-                }
-        );
-
-        DLSS_ENABLE_HDR = builder.defineBoolean(
-                "dlss/enable_hdr",
-                () -> false,
-                "Enable HDR support for DLSS (requires HDR-capable display and content)"
-        );
-
-        DLSS_ENABLE_AUTO_EXPOSURE = builder.defineBoolean(
-                "dlss/enable_auto_exposure",
-                () -> false,
-                "Enable automatic exposure adjustment for DLSS"
-        );
-
-        DLSS_SHOW_METRICS = builder.defineBoolean(
-                "dlss/show_metrics",
-                () -> false,
-                "Show DLSS performance metrics in debug overlay"
         );
 
         SPECIAL = new SpecialConfigs(builder);
@@ -487,63 +426,6 @@ public class SuperResolutionConfig {
 
     public static void setDisableUpscaleOnVanilla(boolean value) {
         DISABLE_UPSCALE_ON_VANILLA.set(value);
-    }
-
-    public static boolean isEnablePerformanceMonitoring() {
-        return ENABLE_PERFORMANCE_MONITORING.get();
-    }
-
-    public static void setEnablePerformanceMonitoring(boolean value) {
-        ENABLE_PERFORMANCE_MONITORING.set(value);
-    }
-
-    public static boolean isEnableShaderCache() {
-        return ENABLE_SHADER_CACHE.get();
-    }
-
-    public static void setEnableShaderCache(boolean value) {
-        ENABLE_SHADER_CACHE.set(value);
-    }
-
-    public static boolean isEnableBatchRendering() {
-        return ENABLE_BATCH_RENDERING.get();
-    }
-
-    public static void setEnableBatchRendering(boolean value) {
-        ENABLE_BATCH_RENDERING.set(value);
-    }
-
-    // DLSS配置方法
-    public static String getDLSSQuality() {
-        return DLSS_QUALITY.get();
-    }
-
-    public static void setDLSSQuality(String value) {
-        DLSS_QUALITY.set(value);
-    }
-
-    public static boolean isDLSSEnableHDR() {
-        return DLSS_ENABLE_HDR.get();
-    }
-
-    public static void setDLSSEnableHDR(boolean value) {
-        DLSS_ENABLE_HDR.set(value);
-    }
-
-    public static boolean isDLSSEnableAutoExposure() {
-        return DLSS_ENABLE_AUTO_EXPOSURE.get();
-    }
-
-    public static void setDLSSEnableAutoExposure(boolean value) {
-        DLSS_ENABLE_AUTO_EXPOSURE.set(value);
-    }
-
-    public static boolean isDLSSShowMetrics() {
-        return DLSS_SHOW_METRICS.get();
-    }
-
-    public static void setDLSSShowMetrics(boolean value) {
-        DLSS_SHOW_METRICS.set(value);
     }
 
     public static float getMinUpscaleRatio() {

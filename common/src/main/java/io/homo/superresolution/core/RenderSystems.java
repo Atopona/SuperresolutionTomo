@@ -4,10 +4,8 @@ import io.homo.superresolution.common.config.SuperResolutionConfig;
 import io.homo.superresolution.common.platform.OSType;
 import io.homo.superresolution.common.platform.Platform;
 import io.homo.superresolution.core.graphics.opengl.GlRenderSystem;
-import io.homo.superresolution.core.graphics.opengl.GlStateCache;
 import io.homo.superresolution.core.graphics.vulkan.VkRenderSystem;
 import io.homo.superresolution.core.graphics.vulkan.utils.VulkanException;
-import io.homo.superresolution.core.performance.PerformanceMonitor;
 import org.lwjgl.vulkan.KHRExternalMemoryFd;
 import org.lwjgl.vulkan.KHRExternalSemaphoreFd;
 import org.lwjgl.vulkan.VK;
@@ -27,30 +25,16 @@ public class RenderSystems {
     private static GlRenderSystem opengl;
 
     public static void init() {
-        // 初始化性能监控
-        PerformanceMonitor.init();
-        
-        try (PerformanceMonitor.AutoTimer timer = PerformanceMonitor.startTimer("render_system_init")) {
-            opengl = new GlRenderSystem();
-            opengl.initRenderSystem();
-            
-            // 初始化OpenGL状态缓存
-            GlStateCache.init();
-            
-            initVulkan();
-        }
+        opengl = new GlRenderSystem();
+        opengl.initRenderSystem();
+        initVulkan();
     }
 
 
     public static void destroy() {
-        try (PerformanceMonitor.AutoTimer timer = PerformanceMonitor.startTimer("render_system_destroy")) {
-            opengl.destroyRenderSystem();
-            if (vulkan != null) {
-                vulkan.destroyRenderSystem();
-            }
-            
-            // 打印最终性能报告
-            PerformanceMonitor.printReport();
+        opengl.destroyRenderSystem();
+        if (vulkan != null) {
+            vulkan.destroyRenderSystem();
         }
     }
 
