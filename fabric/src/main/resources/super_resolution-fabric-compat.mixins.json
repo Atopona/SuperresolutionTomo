@@ -1,0 +1,20 @@
+{
+    "required": true,
+    "package": "io.homo.superresolution.fabric.mixin.compat",
+    "plugin": "io.homo.superresolution.fabric.mixin.compat.CompatMixinPlugin",
+    "compatibilityLevel": "JAVA_8",
+    "minVersion": "0.8",
+    "client": [
+        "reesessodiumoptions.TabFrameMixin",
+        "sodium.GraphicsAdapterProbeMixin",
+        "sodium.SodiumOptionsGUIMixin"
+    ],
+    "mixins": [
+        "iris.GlFramebufferMixin",
+        "iris.IrisRenderingPipelineMixin",
+        "sodiumoptionsapi.SodiumOptionsTabFrameMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
