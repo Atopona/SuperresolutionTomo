@@ -40,9 +40,9 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${versionConfig.fabric.loaderVersion}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${versionConfig.fabric.apiVersion}"
-    //依赖的mod
-    modImplementation "dev.architectury:architectury-fabric:$versionConfig.common.architecturyApiVersion"
-    modImplementation "me.shedaniel.cloth:cloth-config-fabric:$versionConfig.common.clothConfigVersion"
+    //依赖的mod（打包为 Jar-in-Jar，玩家无需单独安装）
+    include(modImplementation("dev.architectury:architectury-fabric:$versionConfig.common.architecturyApiVersion"))
+    include(modImplementation("me.shedaniel.cloth:cloth-config-fabric:$versionConfig.common.clothConfigVersion"))
     modCompileOnly("com.terraformersmc:modmenu:$versionConfig.fabric.modmenuVersion")
 
     //依赖库

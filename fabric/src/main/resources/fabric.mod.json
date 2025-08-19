@@ -35,8 +35,10 @@
     "fabricloader": "*",
     "minecraft": "{versionRange}",
     "java": ">=${javaVersion}",
+    "fabric-api": "*"
+  },
+  "recommends": {
     "architectury": "*",
-    "fabric-api": "*",
     "cloth-config": "*"
   },
   "suggests": {

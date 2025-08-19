@@ -19,7 +19,8 @@ public class NativeLibManager {
     public static final Logger LOGGER = LoggerFactory.getLogger("SuperResolution-NativeLib");
 
 
-    public static final boolean USE_DEBUG_LIB = true;
+    // Prefer release native libraries by default to reduce external debug DLL dependencies.
+    public static final boolean USE_DEBUG_LIB = false;
 
     private static final List<NativeLib> libs = new ArrayList<>();
     private static boolean nativeApiAvailable;
@@ -113,6 +114,21 @@ public class NativeLibManager {
             }
             if (_writeFile(in, targetPath.toString())) {
                 LOGGER.info("{} 提取成功", library.fileName);
+
+                // Windows 下为依赖库创建别名文件，匹配系统加载器期望的 DLL 名称
+                // 例如：SPIRV-Tools-sharedd.dll / SPIRV-Tools-shared.dll
+                OS os = new OS();
+                if (os.type == OSType.WINDOWS && "SPIRV-Tools-shared".equals(library.baseName)) {
+                    // 注意：Windows Debug 构建依赖名为 "SPIRV-Tools-sharedd.dll"（shared + d）
+                    String alias = USE_DEBUG_LIB ? "SPIRV-Tools-sharedd.dll" : "SPIRV-Tools-shared.dll";
+                    Path aliasPath = targetPath.getParent().resolve(alias);
+                    try {
+                        Files.copy(targetPath, aliasPath, StandardCopyOption.REPLACE_EXISTING);
+                        LOGGER.info("为 {} 创建别名 {}", library.fileName, alias);
+                    } catch (IOException ex) {
+                        LOGGER.warn("创建别名 {} 失败: {}", alias, ex.toString());
+                    }
+                }
             } else {
                 throw new IOException(library.fileName + " 提取失败");
             }
