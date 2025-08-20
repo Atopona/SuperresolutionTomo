@@ -1,0 +1,6 @@
+This directory will contain embedded native binaries for DLSS JNI bridge.
+
+Expected layout:
+- assets/super_resolution/natives/win64/ngx_jni.dll
+
+The build pipeline should copy the compiled ngx_jni.dll here.

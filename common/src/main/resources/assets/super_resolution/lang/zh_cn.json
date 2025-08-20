@@ -25,6 +25,7 @@
     "superresolution.algo.display_name.sgsr1": "SGSR V1",
     "superresolution.algo.display_name.sgsr2": "SGSR V2",
     "superresolution.algo.display_name.nis": "NIS",
+    "superresolution.algo.display_name.dlss": "DLSS",
     "superresolution.algo.not_support.fsr1": "你的OpenGL版本低于4.3，将自动禁用FSR1相关功能",
     "superresolution.algo.not_support.none": "看到这条提示证明NT作者写的代码出bug了",
     "superresolution.algo.not_support.fsr2": "你的显卡缺少必要的OpenGL扩展，将自动禁用FSR2相关功能。",
@@ -124,7 +125,7 @@
     "superresolution.algo.description.header": "FSR1 --- AMD FidelityFX Super Resolution 1\nFSR2 --- AMD FidelityFX Super Resolution 2\nNIS --- NVIDIA Image Scaling\nSGSR --- Snapdragon™ Game Super Resolution",
     "superresolution.screen.config.options.label.inject_postChain_black_list": "PostChain注入黑名单",
     "superresolution.screen.config.options.tooltip.inject_postChain_black_list": "部分模组使用PostChain来实现UI效果\n本模组注入代码到PostChain会导致UI效果使用世界渲染分辨率来渲染，这会造成一些渲染问题（比如ModernUI的界面虚化）\n在此处添加希望排除的PostChain名称，本模组便会跳过它们\n修改后可能重启游戏才会生效",
-    "superresolution.screen.config.error.unsupported_algorithm": "当前环境不支持该算法",
+    "superresolution.screen.config.error.unsupported_algorithm": "当前环境不支持该算法（无法应用）",
     "superresolution.screen.config.error.capture_mode_unsupported": "当前的捕获方式在 %s 无法使用",
     "superresolution.screen.config.options.label.enable_compat_shader_compiler": "使用兼容性着色器编译器",
     "superresolution.screen.config.options.tooltip.enable_compat_shader_compiler": "启用时使用兼容性着色器编译器编译着色器",
@@ -135,8 +136,17 @@
     "superresolution.screen.config.options.label.force_disable_shader_compat": "强制禁用光影包兼容",
     "superresolution.screen.config.options.tooltip.force_disable_shader_compat": "启用后模组会忽略光影包的超分辨率兼容配置文件，以普通模式进行缩放",
 
+    "superresolution.screen.config.options.label.dlss_quality": "DLSS：质量档位",
+    "superresolution.screen.config.options.label.dlss_sharpness": "DLSS：锐化强度",
+    "superresolution.screen.config.options.tooltip.dlss_sharpness": "DLSS 锐化强度（0.0–1.0）",
+    "superresolution.screen.config.options.label.dlss_auto_exposure": "DLSS：自动曝光",
+    "superresolution.screen.config.options.tooltip.dlss_auto_exposure": "交由 DLSS 自动调整曝光"
+,
+
     "superresolution.screen.config.options.label.nis_sharpen_only": "NIS：仅锐化",
     "superresolution.screen.config.options.tooltip.nis_sharpen_only": "以显示分辨率处理（不缩放），只应用 NIS 锐化",
     "superresolution.screen.config.options.label.nis_contrast_boost": "NIS：对比度增强",
     "superresolution.screen.config.options.tooltip.nis_contrast_boost": "边缘自适应锐化的对比度增强倍数（范围 0.5–2.0）"
+    ,
+    "superresolution.screen.config.warn.dlss_unsupported": "当前设备不支持 DLSS（需要 Windows + Vulkan + NVIDIA + DLSS 运行库）"
 }

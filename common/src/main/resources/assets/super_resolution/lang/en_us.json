@@ -25,6 +25,7 @@
     "superresolution.algo.display_name.sgsr1": "SGSR V1",
     "superresolution.algo.display_name.sgsr2": "SGSR V2",
     "superresolution.algo.display_name.nis": "NIS",
+    "superresolution.algo.display_name.dlss": "DLSS",
     "superresolution.algo.not_support.fsr1": "Your OpenGL version is below 4.3. FSR1 features will be automatically disabled",
     "superresolution.algo.not_support.none": "Seeing this message indicates a bug in NT author's code",
     "superresolution.algo.not_support.fsr2": "Your GPU lacks required OpenGL extensions. FSR2 features will be automatically disabled.",
@@ -137,5 +138,15 @@
     "superresolution.screen.config.options.label.nis_contrast_boost": "NIS: Contrast Boost",
     "superresolution.screen.config.options.tooltip.nis_contrast_boost": "Contrast boost multiplier for edge-adaptive sharpening (range 0.5–2.0)",
 
+    "superresolution.screen.config.options.label.dlss_quality": "DLSS: Quality Preset",
+    "superresolution.screen.config.options.label.dlss_sharpness": "DLSS: Sharpness",
+    "superresolution.screen.config.options.tooltip.dlss_sharpness": "DLSS sharpening strength (0.0–1.0)",
+    "superresolution.screen.config.options.label.dlss_auto_exposure": "DLSS: Auto Exposure",
+    "superresolution.screen.config.options.tooltip.dlss_auto_exposure": "Let DLSS auto-adjust exposure",
+
+    "superresolution.screen.config.error.unsupported_algorithm": "The current environment does not support this algorithm (cannot be applied)",
+
     "superresolution.translate.PoweredByDeepSeek": "?"
+    ,
+    "superresolution.screen.config.warn.dlss_unsupported": "DLSS is not supported on this device (requires Windows + Vulkan + NVIDIA + DLSS runtime)"
 }

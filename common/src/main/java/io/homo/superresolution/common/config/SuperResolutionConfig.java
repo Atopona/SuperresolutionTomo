@@ -54,6 +54,11 @@ public class SuperResolutionConfig {
     public static final BooleanValue NIS_SHARPEN_ONLY;
     public static final FloatValue NIS_CONTRAST_BOOST;
 
+    // DLSS specific options
+    public static final EnumValue<io.homo.superresolution.common.upscale.dlss.DlssQuality> DLSS_QUALITY_MODE;
+    public static final FloatValue DLSS_SHARPNESS;
+    public static final BooleanValue DLSS_AUTO_EXPOSURE;
+
     public static final OSType CURRENT_OS_TYPE = new OS().type;
     public static final Runnable resolutionChangeCallback;
 
@@ -205,6 +210,25 @@ public class SuperResolutionConfig {
                 v -> v >= 0.5f && v <= 2.0f
         );
 
+        // DLSS specific options
+        DLSS_QUALITY_MODE = builder.defineEnum(
+                "dlss/quality_mode",
+                io.homo.superresolution.common.upscale.dlss.DlssQuality.class,
+                () -> io.homo.superresolution.common.upscale.dlss.DlssQuality.QUALITY,
+                "DLSS quality preset"
+        );
+        DLSS_SHARPNESS = builder.defineFloat(
+                "dlss/sharpness",
+                () -> 0.2f,
+                "DLSS sharpness strength (0.0 ~ 1.0)",
+                v -> v >= 0.0f && v <= 1.0f
+        );
+        DLSS_AUTO_EXPOSURE = builder.defineBoolean(
+                "dlss/auto_exposure",
+                () -> true,
+                "DLSS auto exposure"
+        );
+
 
 
         SPECIAL = new SpecialConfigs(builder);
@@ -257,10 +281,17 @@ public class SuperResolutionConfig {
         }
 
         if (!algo.requirement.check().support() && !Platform.currentPlatform.isDevelopmentEnvironment()) {
-            SuperResolution.LOGGER.warn("算法 {} 不支持，回退到默认算法", algo.displayName);
-            AlgorithmDescription<?> defaultAlgo = getDefaultAlgorithm();
-            setUpscaleAlgorithm(defaultAlgo);
-            return defaultAlgo;
+            if (algo == AlgorithmDescriptions.DLSS) {
+                // Do not fallback to other algorithms when DLSS is unsupported.
+                // Keep the selection but do not apply; run NONE instead.
+                SuperResolution.LOGGER.warn("算法 {} 不支持：保持选择但不会应用（实际使用 None）", algo.displayName);
+                return AlgorithmDescriptions.NONE;
+            } else {
+                SuperResolution.LOGGER.warn("算法 {} 不支持，回退到默认算法", algo.displayName);
+                AlgorithmDescription<?> defaultAlgo = getDefaultAlgorithm();
+                setUpscaleAlgorithm(defaultAlgo);
+                return defaultAlgo;
+            }
         }
 
         return algo;

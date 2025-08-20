@@ -9,13 +9,13 @@ import io.homo.superresolution.common.upscale.ffxfsr.FfxFSROgl;
 import io.homo.superresolution.common.upscale.fsr1.FSR1;
 import io.homo.superresolution.common.upscale.fsr2.FSR2;
 import io.homo.superresolution.common.upscale.nis.NVIDIAImageScaling;
+import io.homo.superresolution.common.upscale.dlss.NgxDLSS;
 import io.homo.superresolution.common.upscale.none.None;
 import io.homo.superresolution.common.upscale.sgsr.v1.Sgsr1;
 import io.homo.superresolution.common.upscale.sgsr.v2.Sgsr2;
 import io.homo.superresolution.common.platform.OS;
 import io.homo.superresolution.common.platform.Arch;
 import io.homo.superresolution.common.platform.OSType;
-import io.homo.superresolution.core.graphics.GraphicsCapabilities;
 import io.homo.superresolution.core.graphics.opengl.Gl;
 
 public class AlgorithmDescriptions {
@@ -81,6 +81,15 @@ public class AlgorithmDescriptions {
                             .glVersion(4, 5)
                             .requiredGlExtension("GL_ARB_shading_language_420pack")
             );
+    public static final AlgorithmDescription<NgxDLSS> DLSS =
+            new AlgorithmDescription<>(
+                    NgxDLSS.class,
+                    "DLSS",
+                    "dlss",
+                    "NVIDIA DLSS (NGX)",
+                    io.homo.superresolution.common.upscale.dlss.NgxRequirement.build()
+                            .glVersion(4, 5)
+            );
     public static final AlgorithmDescription<Sgsr1> SGSR1 =
             new AlgorithmDescription<>(
                     Sgsr1.class,
@@ -111,6 +120,7 @@ public class AlgorithmDescriptions {
         AlgorithmRegistry.registry(FSR);
         AlgorithmRegistry.registry(FSROgl);
         AlgorithmRegistry.registry(NIS);
+        AlgorithmRegistry.registry(DLSS);
         AlgorithmRegistry.registry(SGSR1);
         AlgorithmRegistry.registry(SGSR2);
         AlgorithmRegisterEvent.EVENT.invoker().onAlgorithmRegister();

@@ -95,12 +95,44 @@ public class ClothConfig {
                 .setSaveConsumer((i) -> SuperResolutionConfig.setSharpness(getFloat(i)))
                 .build());
 
-        // NIS options
+        SelectionListEntry<Object> algorithmSelector = entryBuilder.startSelector(
+                        Component.translatable("superresolution.screen.config.options.label.algo_type"),
+                        AlgorithmRegistry.getAlgorithmMap().values().toArray(),
+                        SuperResolutionConfig.getUpscaleAlgorithm()
+                )
+                .setDefaultValue(AlgorithmDescriptions.FSR1)
+                .setNameProvider(((anEnum) -> {
+                    AlgorithmDescription<?> desc = (AlgorithmDescription<?>) anEnum;
+                    boolean supported = AlgorithmManager.isSupportAlgorithm(desc);
+                    MutableComponent name = Component.literal(desc.getBriefName());
+                    return supported ? name : name.withStyle(Style.EMPTY.withColor(ColorUtil.color(255, 255, 0, 0)));
+                }))
+                .setErrorSupplier((algorithmType -> {
+                    if (Platform.currentPlatform.isDevelopmentEnvironment() || Platform.currentPlatform.getModVersionString(SuperResolution.MOD_ID).contains("dev")) {
+                        return Optional.empty();
+                    }
+                    if (!((AlgorithmDescription<?>) algorithmType).getRequirement().check().support()) {
+                        return Optional.of(Component.translatable("superresolution.screen.config.error.unsupported_algorithm"));
+                    }
+                    return Optional.empty();
+                }))
+                .setSaveConsumer((o -> {
+                    AlgorithmDescription<?> selected = (AlgorithmDescription<?>) o;
+                    if (AlgorithmManager.isSupportAlgorithm(selected)) {
+                        SuperResolutionConfig.setUpscaleAlgorithm(selected);
+                    } else {
+                        // Do not apply unsupported algorithm (no fallback to other algos)
+                        SuperResolution.LOGGER.warn("算法 {} 当前环境不支持，已阻止应用", selected.getDisplayName());
+                    }
+                })).build();
+
+        // NIS options (visible only when NIS selected)
         commonCategory.addEntry(entryBuilder.startBooleanToggle(
                         Component.translatable("superresolution.screen.config.options.label.nis_sharpen_only"),
                         SuperResolutionConfig.NIS_SHARPEN_ONLY.get())
                 .setTooltip(Component.translatable("superresolution.screen.config.options.tooltip.nis_sharpen_only"))
                 .setSaveConsumer(v -> SuperResolutionConfig.NIS_SHARPEN_ONLY.set(v))
+                .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.NIS))
                 .build());
         commonCategory.addEntry(entryBuilder.startIntSlider(
                         Component.translatable("superresolution.screen.config.options.label.nis_contrast_boost"),
@@ -112,33 +144,53 @@ public class ClothConfig {
                 .setDefaultValue(getInt(1.0f))
                 .setTextGetter((integer -> Component.literal(String.format("%.2f", getFloat(integer)))))
                 .setSaveConsumer((i) -> SuperResolutionConfig.NIS_CONTRAST_BOOST.set(getFloat(i)))
+                .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.NIS))
+                .build());
+        // DLSS options (visible only when DLSS selected)
+        commonCategory.addEntry(entryBuilder.startEnumSelector(
+                        Component.translatable("superresolution.screen.config.options.label.dlss_quality"),
+                        io.homo.superresolution.common.upscale.dlss.DlssQuality.class,
+                        SuperResolutionConfig.DLSS_QUALITY_MODE.get())
+                .setDefaultValue(io.homo.superresolution.common.upscale.dlss.DlssQuality.QUALITY)
+                .setSaveConsumer(SuperResolutionConfig.DLSS_QUALITY_MODE::set)
+                .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.DLSS))
+                .build());
+        commonCategory.addEntry(entryBuilder.startIntSlider(
+                        Component.translatable("superresolution.screen.config.options.label.dlss_sharpness"),
+                        getInt(SuperResolutionConfig.DLSS_SHARPNESS.get()),
+                        getInt(0.0f),
+                        getInt(1.0f)
+                )
+                .setTooltip(Component.translatable("superresolution.screen.config.options.tooltip.dlss_sharpness"))
+                .setDefaultValue(getInt(0.2f))
+                .setTextGetter((integer -> Component.literal(String.format("%.2f", getFloat(integer)))))
+                .setSaveConsumer((i) -> SuperResolutionConfig.DLSS_SHARPNESS.set(getFloat(i)))
+                .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.DLSS))
+                .build());
+        commonCategory.addEntry(entryBuilder.startBooleanToggle(
+                        Component.translatable("superresolution.screen.config.options.label.dlss_auto_exposure"),
+                        SuperResolutionConfig.DLSS_AUTO_EXPOSURE.get())
+                .setTooltip(Component.translatable("superresolution.screen.config.options.tooltip.dlss_auto_exposure"))
+                .setSaveConsumer(SuperResolutionConfig.DLSS_AUTO_EXPOSURE::set)
+                .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.DLSS))
                 .build());
 
-        SelectionListEntry<Object> algorithmSelector = entryBuilder.startSelector(
-                        Component.translatable("superresolution.screen.config.options.label.algo_type"),
-                        AlgorithmRegistry.getAlgorithmMap().values().toArray(),
-                        SuperResolutionConfig.getUpscaleAlgorithm()
-                )
-                .setDefaultValue(AlgorithmDescriptions.FSR1)
-                .setNameProvider(((anEnum) -> Component.literal(((AlgorithmDescription<?>) anEnum).getBriefName())))
-                .setErrorSupplier((algorithmType -> {
-                    if (Platform.currentPlatform.isDevelopmentEnvironment() || Platform.currentPlatform.getModVersionString(SuperResolution.MOD_ID).contains("dev")) {
-                        return Optional.empty();
-                    }
-                    if (!((AlgorithmDescription<?>) algorithmType).getRequirement().check().support()) {
-                        return Optional.of(Component.translatable("superresolution.screen.config.error.unsupported_algorithm"));
-                    }
-                    return Optional.empty();
-                }))
-                .setSaveConsumer((o -> {
-                    SuperResolutionConfig.setUpscaleAlgorithm((AlgorithmDescription<?>) o);
-                })).build();
+        // DLSS unsupported warning (red), only when DLSS selected and not supported
+        commonCategory.addEntry(entryBuilder.startTextDescription(
+                        Component.translatable("superresolution.screen.config.warn.dlss_unsupported"))
+                .setColor(ColorUtil.color(255, 255, 0, 0))
+                .setDisplayRequirement(Requirement.isTrue(() ->
+                        algorithmSelector.getValue() == AlgorithmDescriptions.DLSS &&
+                                !AlgorithmManager.isSupportAlgorithm(AlgorithmDescriptions.DLSS)
+                ))
+                .build());
+
         commonCategory.addEntry(algorithmSelector);
         commonCategory.addEntry(
                 entryBuilder.startTextDescription(
                                 Component.translatable("superresolution.screen.config.warn.algorithm_unstable")
                         ).setColor(ColorUtil.color(255, 255, 128, 0))
-                        .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.FSR2, AlgorithmDescriptions.NIS, AlgorithmDescriptions.SGSR2))
+                        .setDisplayRequirement(Requirement.isValue(algorithmSelector, AlgorithmDescriptions.FSR2, AlgorithmDescriptions.NIS, AlgorithmDescriptions.DLSS, AlgorithmDescriptions.SGSR2))
                         .build()
         );
         commonCategory.addEntry(
